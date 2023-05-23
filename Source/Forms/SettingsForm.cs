@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Windows.Forms;
 
@@ -214,10 +216,12 @@ namespace WindowsVirtualDesktopHelper
         }
 
         private void contextMenuStrip1_ItemClicked(object sender, ToolStripItemClickedEventArgs e) {
-            if (e.ClickedItem.Tag.ToString() == "exit") App.Instance.Exit();
-            else if (e.ClickedItem.Tag.ToString() == "settings") this.Show();
-            else if (e.ClickedItem.Tag.ToString() == "about") App.Instance.ShowAbout();
-            else if (e.ClickedItem.Tag.ToString() == "donate") App.Instance.OpenDonatePage();
+            if (e.ClickedItem.Tag != null) {
+                if (e.ClickedItem.Tag.ToString() == "exit") App.Instance.Exit();
+                else if (e.ClickedItem.Tag.ToString() == "settings") this.Show();
+                else if (e.ClickedItem.Tag.ToString() == "about") App.Instance.ShowAbout();
+                else if (e.ClickedItem.Tag.ToString() == "donate") App.Instance.OpenDonatePage();
+            }
         }
 
         private void notifyIconPrev_Click(object sender, EventArgs e) {
@@ -324,23 +328,56 @@ namespace WindowsVirtualDesktopHelper
         private void toolStripMenuItemSwitchVD_DropDownOpening(object sender, EventArgs e) {
             if (sender is ToolStripMenuItem switchVD) {
                 switchVD.DropDownItems.Clear();
-                foreach (var name in App.Instance.VDAPI.GetAllDesktopNames()) {
-                    var nextItem = new ToolStripMenuItem();
-                    nextItem.Name = name;
-                    nextItem.Size = new Size(180, 22);
-                    nextItem.Text = name;
-                    nextItem.MouseUp += NextItem_MouseUp;
-                    switchVD.DropDownItems.Add(nextItem);
+                foreach (ToolStripMenuItem item in CreateListWithAllVDs<ToolStripMenuItem>()) {
+                    item.MouseUp += SwitchVDItemMouseUp;
+                    switchVD.DropDownItems.Add(item);
                 }
             }
         }
 
-        private void NextItem_MouseUp(object sender, MouseEventArgs e)
-        {
-            if (e.Button == MouseButtons.Left && sender is ToolStripMenuItem switchVdItem)
-            {
+        private void SwitchVDItemMouseUp(object sender, MouseEventArgs e) {
+            if (e.Button == MouseButtons.Left && sender is ToolStripMenuItem switchVdItem) {
                 App.Instance.VDAPI.SwitchToDesktop(switchVdItem.Name);
             }
+        }
+
+        private class RenameTag {
+            public int Index { get; set; }
+            public string OldName { get; set; }
+        }
+
+        private void renameVDToolStripMenuItem_DropDownOpening(object sender, EventArgs e) {
+            if (sender is ToolStripMenuItem switchVD) {
+                switchVD.DropDownItems.Clear();
+                List<ToolStripTextBox> list = CreateListWithAllVDs<ToolStripTextBox>();
+                for (int i = 0; i < list.Count; ++i) {
+                    list[i].LostFocus += RenameVdLostFocus;
+                    list[i].Tag = new RenameTag() { Index = i, OldName = list[i].Text };
+                    switchVD.DropDownItems.Add(list[i]);
+                }
+            }
+        }
+
+        private void RenameVdLostFocus(object sender, EventArgs e) {
+            if (sender is ToolStripTextBox renameVdItem) {
+                if (renameVdItem.Text != (renameVdItem.Tag as RenameTag).OldName) {
+                    RenameTag tag = (renameVdItem.Tag as RenameTag);
+                    App.Instance.VDAPI.RenameDesktop(tag.Index, renameVdItem.Text);
+                    tag.OldName = renameVdItem.Text;
+                }
+            }
+        }
+
+        private List<T> CreateListWithAllVDs<T>() where T : ToolStripItem, new() {
+            List<T> list = new List<T>();
+            foreach (var name in App.Instance.VDAPI.GetAllDesktopNames()) {
+                var nextItem = new T();
+                nextItem.Name = name;
+                nextItem.Size = new Size(180, 22);
+                nextItem.Text = name;
+                list.Add(nextItem);
+            }
+            return list;
         }
     }
 }

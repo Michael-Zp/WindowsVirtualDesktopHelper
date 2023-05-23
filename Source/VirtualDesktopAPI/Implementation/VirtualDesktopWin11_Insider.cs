@@ -94,6 +94,10 @@ namespace WindowsVirtualDesktopHelper.VirtualDesktopAPI.Implementation {
             return desktopName;
         }
 
+		public void RenameDesktop(int index, string newName) {
+			DesktopManager.VirtualDesktopManagerInternal.SetDesktopName(DesktopManager.GetDesktop(index), newName);
+        }
+
 		#region COM API
 		internal static class Guids
 		{

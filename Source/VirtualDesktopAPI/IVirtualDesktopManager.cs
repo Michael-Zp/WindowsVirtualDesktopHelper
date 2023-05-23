@@ -17,6 +17,8 @@ namespace WindowsVirtualDesktopHelper.VirtualDesktopAPI {
 
         string CurrentDisplayName();
 
+        void RenameDesktop(int index, string newName);
+
         List<string> GetAllDesktopNames();
     }
 }

@@ -66,6 +66,16 @@ namespace WindowsVirtualDesktopHelper.VirtualDesktopAPI.Implementation {
             return result;
         }
 
+        public void RenameDesktop(int index, string newName) {
+            DesktopManager.GetDesktopArray(out IObjectArray desktops);
+            desktops.GetAt(index, typeof(IVirtualDesktop).GUID, out object objdesktop);
+            IVirtualDesktop desktop = (IVirtualDesktop)objdesktop;
+            Microsoft.Win32.Registry
+                .SetValue(
+                    $"HKEY_CURRENT_USER\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\VirtualDesktops\\Desktops\\{{{desktop.GetId()}}}",
+                    "Name", newName);
+        }
+
         #endregion
 
         #region Implementation
