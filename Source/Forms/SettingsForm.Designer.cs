@@ -28,6 +28,8 @@ namespace WindowsVirtualDesktopHelper {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(SettingsForm));
             this.notifyIconNumber = new System.Windows.Forms.NotifyIcon(this.components);
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.toolStripMenuItemSwitchVD = new System.Windows.Forms.ToolStripMenuItem();
+            this.vD1ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItemAbout = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItemDonate = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItemSettings = new System.Windows.Forms.ToolStripMenuItem();
@@ -77,39 +79,56 @@ namespace WindowsVirtualDesktopHelper {
             // contextMenuStrip1
             // 
             this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolStripMenuItemSwitchVD,
             this.toolStripMenuItemAbout,
             this.toolStripMenuItemDonate,
             this.toolStripMenuItemSettings,
             this.toolStripMenuItemExit});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(117, 92);
+            this.contextMenuStrip1.Size = new System.Drawing.Size(181, 136);
             this.contextMenuStrip1.ItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.contextMenuStrip1_ItemClicked);
+            // 
+            // toolStripMenuItemSwitchVD
+            // 
+            this.toolStripMenuItemSwitchVD.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.vD1ToolStripMenuItem});
+            this.toolStripMenuItemSwitchVD.Name = "toolStripMenuItemSwitchVD";
+            this.toolStripMenuItemSwitchVD.Size = new System.Drawing.Size(180, 22);
+            this.toolStripMenuItemSwitchVD.Tag = "switchVd";
+            this.toolStripMenuItemSwitchVD.Text = "Switch VD";
+            this.toolStripMenuItemSwitchVD.DropDownOpening += new System.EventHandler(this.toolStripMenuItemSwitchVD_DropDownOpening);
+            // 
+            // vD1ToolStripMenuItem
+            // 
+            this.vD1ToolStripMenuItem.Name = "vD1ToolStripMenuItem";
+            this.vD1ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.vD1ToolStripMenuItem.Text = "VD1";
             // 
             // toolStripMenuItemAbout
             // 
             this.toolStripMenuItemAbout.Name = "toolStripMenuItemAbout";
-            this.toolStripMenuItemAbout.Size = new System.Drawing.Size(116, 22);
+            this.toolStripMenuItemAbout.Size = new System.Drawing.Size(180, 22);
             this.toolStripMenuItemAbout.Tag = "about";
             this.toolStripMenuItemAbout.Text = "About";
             // 
             // toolStripMenuItemDonate
             // 
             this.toolStripMenuItemDonate.Name = "toolStripMenuItemDonate";
-            this.toolStripMenuItemDonate.Size = new System.Drawing.Size(116, 22);
+            this.toolStripMenuItemDonate.Size = new System.Drawing.Size(180, 22);
             this.toolStripMenuItemDonate.Tag = "donate";
             this.toolStripMenuItemDonate.Text = "Donate";
             // 
             // toolStripMenuItemSettings
             // 
             this.toolStripMenuItemSettings.Name = "toolStripMenuItemSettings";
-            this.toolStripMenuItemSettings.Size = new System.Drawing.Size(116, 22);
+            this.toolStripMenuItemSettings.Size = new System.Drawing.Size(180, 22);
             this.toolStripMenuItemSettings.Tag = "settings";
             this.toolStripMenuItemSettings.Text = "Settings";
             // 
             // toolStripMenuItemExit
             // 
             this.toolStripMenuItemExit.Name = "toolStripMenuItemExit";
-            this.toolStripMenuItemExit.Size = new System.Drawing.Size(116, 22);
+            this.toolStripMenuItemExit.Size = new System.Drawing.Size(180, 22);
             this.toolStripMenuItemExit.Tag = "exit";
             this.toolStripMenuItemExit.Text = "Exit";
             // 
@@ -429,13 +448,15 @@ namespace WindowsVirtualDesktopHelper {
 
         private System.Windows.Forms.NotifyIcon notifyIconNumber;
         private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemSettings;
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemAbout;
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemExit;
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemDonate;
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemSwitchVD;
         private System.Windows.Forms.NotifyIcon notifyIconPrev;
         private System.Windows.Forms.NotifyIcon notifyIconNext;
         private System.Windows.Forms.CheckBox checkBoxShowPrevNextIcons;
         private System.Windows.Forms.GroupBox groupBox1;
-        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemSettings;
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.CheckBox checkBoxStartupWithWindows;
         private System.Windows.Forms.CheckBox checkBoxShowOverlay;
@@ -458,7 +479,7 @@ namespace WindowsVirtualDesktopHelper {
         private System.Windows.Forms.RadioButton radioButtonPositionTopLeft;
         private System.Windows.Forms.RadioButton radioButtonOverlayMicroDuration;
         private System.Windows.Forms.CheckBox checkBoxClickDesktopNumberTaskView;
-        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemDonate;
         private System.Windows.Forms.NotifyIcon notifyIconName;
+        private System.Windows.Forms.ToolStripMenuItem vD1ToolStripMenuItem;
     }
 }

@@ -1,15 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Configuration;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace WindowsVirtualDesktopHelper {
+namespace WindowsVirtualDesktopHelper
+{
     public partial class SettingsForm : Form {
 
         private bool IsLoading;
@@ -324,6 +318,28 @@ namespace WindowsVirtualDesktopHelper {
                 } else {
                     Util.OS.OpenTaskView();
                 }
+            }
+        }
+
+        private void toolStripMenuItemSwitchVD_DropDownOpening(object sender, EventArgs e) {
+            if (sender is ToolStripMenuItem switchVD) {
+                switchVD.DropDownItems.Clear();
+                foreach (var name in App.Instance.VDAPI.GetAllDesktopNames()) {
+                    var nextItem = new ToolStripMenuItem();
+                    nextItem.Name = name;
+                    nextItem.Size = new Size(180, 22);
+                    nextItem.Text = name;
+                    nextItem.MouseUp += NextItem_MouseUp;
+                    switchVD.DropDownItems.Add(nextItem);
+                }
+            }
+        }
+
+        private void NextItem_MouseUp(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left && sender is ToolStripMenuItem switchVdItem)
+            {
+                App.Instance.VDAPI.SwitchToDesktop(switchVdItem.Name);
             }
         }
     }
