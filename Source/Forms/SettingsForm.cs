@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Drawing;
 using System.Windows.Forms;
 
 namespace WindowsVirtualDesktopHelper {
@@ -297,7 +299,20 @@ namespace WindowsVirtualDesktopHelper {
 
 		private void checkBoxClickDesktopNumberTaskView_CheckedChanged(object sender, EventArgs e) {
 
-        private void notifyIconNumber_MouseClick(object sender, MouseEventArgs e) {
+		}
+
+		private void notifyIconName_MouseClick(object sender, MouseEventArgs e) {
+			if (e.Button == MouseButtons.Left && this.checkBoxClickDesktopNumberTaskView.Checked) {
+				// Already open?
+				if (App.Instance.FGWindowHistory.Contains("Task View")) {
+					// Do nothing
+				} else {
+					Util.OS.OpenTaskView();
+				}
+			}
+		}
+
+		private void notifyIconNumber_MouseClick(object sender, MouseEventArgs e) {
             if (e.Button == MouseButtons.Left && this.checkBoxClickDesktopNumberTaskView.Checked) {
                 // Already open?
                 if (App.Instance.FGWindowHistory.Contains("Task View")) {

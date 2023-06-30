@@ -82,12 +82,6 @@ namespace WindowsVirtualDesktopHelper.VirtualDesktopAPI.Implementation {
 
 
         private static string DesktopNameFromDesktop(IVirtualDesktop desktop) {
-            var desktopName = Microsoft.Win32.Registry
-                .GetValue(
-                    $"HKEY_CURRENT_USER\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\VirtualDesktops\\Desktops\\{{{desktop.GetId()}}}",
-                    "Name", null)?.ToString();
-
-		private static string DesktopNameFromDesktop(IVirtualDesktop desktop) {
 			var desktopName = Microsoft.Win32.Registry
 				.GetValue(
 					$"HKEY_CURRENT_USER\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\VirtualDesktops\\Desktops\\{{{desktop.GetId()}}}",
