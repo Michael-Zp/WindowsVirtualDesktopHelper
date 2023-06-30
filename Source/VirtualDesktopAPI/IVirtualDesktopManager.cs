@@ -10,14 +10,14 @@ namespace WindowsVirtualDesktopHelper.VirtualDesktopAPI {
 
 		void SwitchForward();
 
-        void SwitchToDesktop(string name);
+		void SwitchToDesktop(string name);
 
-        void SwitchBackward();
+		void SwitchBackward();
 
-        string CurrentDisplayName();
+		string CurrentDisplayName();
 
-        void RenameDesktop(int index, string newName);
+		void RenameDesktop(int index, string newName);
 
-        List<string> GetAllDesktopNames();
-    }
+		List<string> GetAllDesktopNames();
+	}
 }

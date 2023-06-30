@@ -39,22 +39,19 @@ namespace WindowsVirtualDesktopHelper.VirtualDesktopAPI.Implementation {
 			DesktopManager.VirtualDesktopManagerInternal.SwitchDesktop(IntPtr.Zero, adjacent);
 		}
 
-        public void SwitchToDesktop(string name)
-        {
-            DesktopManager.GetDesktopArray(out IObjectArray desktops);
-            var count = DesktopManager.VirtualDesktopManagerInternal.GetCount(IntPtr.Zero);
-            for (int i = 0; i < count; i++)
-            {
-                desktops.GetAt(i, typeof(IVirtualDesktop).GUID, out object objdesktop);
-                if (((IVirtualDesktop)objdesktop).GetName() == name)
-				{
+		public void SwitchToDesktop(string name) {
+			DesktopManager.GetDesktopArray(out IObjectArray desktops);
+			var count = DesktopManager.VirtualDesktopManagerInternal.GetCount(IntPtr.Zero);
+			for (int i = 0; i < count; i++) {
+				desktops.GetAt(i, typeof(IVirtualDesktop).GUID, out object objdesktop);
+				if (((IVirtualDesktop)objdesktop).GetName() == name) {
 					DesktopManager.VirtualDesktopManagerInternal.SwitchDesktop(IntPtr.Zero, (IVirtualDesktop)objdesktop);
 				}
-            }
-        }
+			}
+		}
 
-        public void SwitchBackward() {
-            var current = DesktopManager.VirtualDesktopManagerInternal.GetCurrentDesktop(IntPtr.Zero);
+		public void SwitchBackward() {
+			var current = DesktopManager.VirtualDesktopManagerInternal.GetCurrentDesktop(IntPtr.Zero);
 
 			DesktopManager.VirtualDesktopManagerInternal.GetAdjacentDesktop(current, 3, out var adjacent);
 			if (adjacent == null) return;
@@ -65,23 +62,21 @@ namespace WindowsVirtualDesktopHelper.VirtualDesktopAPI.Implementation {
 			return DesktopNameFromDesktop(DesktopManager.VirtualDesktopManagerInternal.GetCurrentDesktop(IntPtr.Zero));
 		}
 
-        public List<string> GetAllDesktopNames()
-        {
-            List<string> result = new List<string>();
-            DesktopManager.GetDesktopArray(out IObjectArray desktops);
-            var count = DesktopManager.VirtualDesktopManagerInternal.GetCount(IntPtr.Zero);
-            for (int i = 0; i < count; i++)
-            {
-                desktops.GetAt(i, typeof(IVirtualDesktop).GUID, out object objdesktop);
-                result.Add(((IVirtualDesktop)objdesktop).GetName());
-            }
-            return result;
-        }
+		public List<string> GetAllDesktopNames() {
+			List<string> result = new List<string>();
+			DesktopManager.GetDesktopArray(out IObjectArray desktops);
+			var count = DesktopManager.VirtualDesktopManagerInternal.GetCount(IntPtr.Zero);
+			for (int i = 0; i < count; i++) {
+				desktops.GetAt(i, typeof(IVirtualDesktop).GUID, out object objdesktop);
+				result.Add(((IVirtualDesktop)objdesktop).GetName());
+			}
+			return result;
+		}
 
-        #endregion
+		#endregion
 
 
-        private static string DesktopNameFromDesktop(IVirtualDesktop desktop) {
+		private static string DesktopNameFromDesktop(IVirtualDesktop desktop) {
 			var desktopName = Microsoft.Win32.Registry
 				.GetValue(
 					$"HKEY_CURRENT_USER\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\VirtualDesktops\\Desktops\\{{{desktop.GetId()}}}",
@@ -96,7 +91,7 @@ namespace WindowsVirtualDesktopHelper.VirtualDesktopAPI.Implementation {
 
 		public void RenameDesktop(int index, string newName) {
 			DesktopManager.VirtualDesktopManagerInternal.SetDesktopName(DesktopManager.GetDesktop(index), newName);
-        }
+		}
 
 		#region COM API
 		internal static class Guids {
@@ -326,13 +321,13 @@ namespace WindowsVirtualDesktopHelper.VirtualDesktopAPI.Implementation {
 				}
 				Marshal.ReleaseComObject(desktops);
 				return index;
-            }
+			}
 
-            internal static void GetDesktopArray(out IObjectArray desktops) {
-                VirtualDesktopManagerInternal.GetDesktops(IntPtr.Zero, out desktops);
-            }
+			internal static void GetDesktopArray(out IObjectArray desktops) {
+				VirtualDesktopManagerInternal.GetDesktops(IntPtr.Zero, out desktops);
+			}
 
-        }
+		}
 		#endregion
 
 		#region public interface
