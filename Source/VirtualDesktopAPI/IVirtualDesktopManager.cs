@@ -2,14 +2,22 @@
 // Contributors: Dan Krusi (https://github.com/dankrusi), MScholtes (https://github.com/MScholtes), Flaflo (https://github.com/Flaflo)
 // License: MIT License (https://github.com/zgdump/windows-virtualdesktopindicator/blob/main/LICENSE)
 
+using System.Collections.Generic;
+
 namespace WindowsVirtualDesktopHelper.VirtualDesktopAPI {
 	public interface IVirtualDesktopManager {
 		uint Current();
 
 		void SwitchForward();
 
-		void SwitchBackward();
+        void SwitchToDesktop(string name);
 
-		string CurrentDisplayName();
-	}
+        void SwitchBackward();
+
+        string CurrentDisplayName();
+
+        void RenameDesktop(int index, string newName);
+
+        List<string> GetAllDesktopNames();
+    }
 }

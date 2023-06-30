@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Windows.Forms;
 
-namespace WindowsVirtualDesktopHelper {
-	class Program {
+namespace WindowsVirtualDesktopHelper
+{
+    class Program {
 
 		[STAThread]
 		public static void Main(string[] args) {

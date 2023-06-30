@@ -211,12 +211,14 @@ namespace WindowsVirtualDesktopHelper {
 			this.Hide();
 		}
 
-		private void contextMenuStrip1_ItemClicked(object sender, ToolStripItemClickedEventArgs e) {
-			if (e.ClickedItem.Tag.ToString() == "exit") App.Instance.Exit();
-			else if (e.ClickedItem.Tag.ToString() == "settings") this.Show();
-			else if (e.ClickedItem.Tag.ToString() == "about") App.Instance.ShowAbout();
-			else if (e.ClickedItem.Tag.ToString() == "donate") App.Instance.OpenDonatePage();
-		}
+        private void contextMenuStrip1_ItemClicked(object sender, ToolStripItemClickedEventArgs e) {
+            if (e.ClickedItem.Tag != null) {
+                if (e.ClickedItem.Tag.ToString() == "exit") App.Instance.Exit();
+                else if (e.ClickedItem.Tag.ToString() == "settings") this.Show();
+                else if (e.ClickedItem.Tag.ToString() == "about") App.Instance.ShowAbout();
+                else if (e.ClickedItem.Tag.ToString() == "donate") App.Instance.OpenDonatePage();
+            }
+        }
 
 		private void notifyIconPrev_Click(object sender, EventArgs e) {
 			App.Instance.VDAPI.SwitchBackward();
@@ -295,28 +297,70 @@ namespace WindowsVirtualDesktopHelper {
 
 		private void checkBoxClickDesktopNumberTaskView_CheckedChanged(object sender, EventArgs e) {
 
-		}
+        private void notifyIconNumber_MouseClick(object sender, MouseEventArgs e) {
+            if (e.Button == MouseButtons.Left && this.checkBoxClickDesktopNumberTaskView.Checked) {
+                // Already open?
+                if (App.Instance.FGWindowHistory.Contains("Task View")) {
+                    // Do nothing
+                } else {
+                    Util.OS.OpenTaskView();
+                }
+            }
+        }
 
-		private void notifyIconName_MouseClick(object sender, MouseEventArgs e) {
-			if (e.Button == MouseButtons.Left && this.checkBoxClickDesktopNumberTaskView.Checked) {
-				// Already open?
-				if (App.Instance.FGWindowHistory.Contains("Task View")) {
-					// Do nothing
-				} else {
-					Util.OS.OpenTaskView();
-				}
-			}
-		}
+        private void toolStripMenuItemSwitchVD_DropDownOpening(object sender, EventArgs e) {
+            if (sender is ToolStripMenuItem switchVD) {
+                switchVD.DropDownItems.Clear();
+                foreach (ToolStripMenuItem item in CreateListWithAllVDs<ToolStripMenuItem>()) {
+                    item.MouseUp += SwitchVDItemMouseUp;
+                    switchVD.DropDownItems.Add(item);
+                }
+            }
+        }
 
-		private void notifyIconNumber_MouseClick(object sender, MouseEventArgs e) {
-			if (e.Button == MouseButtons.Left && this.checkBoxClickDesktopNumberTaskView.Checked) {
-				// Already open?
-				if (App.Instance.FGWindowHistory.Contains("Task View")) {
-					// Do nothing
-				} else {
-					Util.OS.OpenTaskView();
-				}
-			}
-		}
-	}
+        private void SwitchVDItemMouseUp(object sender, MouseEventArgs e) {
+            if (e.Button == MouseButtons.Left && sender is ToolStripMenuItem switchVdItem) {
+                App.Instance.VDAPI.SwitchToDesktop(switchVdItem.Name);
+            }
+        }
+
+        private class RenameTag {
+            public int Index { get; set; }
+            public string OldName { get; set; }
+        }
+
+        private void renameVDToolStripMenuItem_DropDownOpening(object sender, EventArgs e) {
+            if (sender is ToolStripMenuItem switchVD) {
+                switchVD.DropDownItems.Clear();
+                List<ToolStripTextBox> list = CreateListWithAllVDs<ToolStripTextBox>();
+                for (int i = 0; i < list.Count; ++i) {
+                    list[i].LostFocus += RenameVdLostFocus;
+                    list[i].Tag = new RenameTag() { Index = i, OldName = list[i].Text };
+                    switchVD.DropDownItems.Add(list[i]);
+                }
+            }
+        }
+
+        private void RenameVdLostFocus(object sender, EventArgs e) {
+            if (sender is ToolStripTextBox renameVdItem) {
+                if (renameVdItem.Text != (renameVdItem.Tag as RenameTag).OldName) {
+                    RenameTag tag = (renameVdItem.Tag as RenameTag);
+                    App.Instance.VDAPI.RenameDesktop(tag.Index, renameVdItem.Text);
+                    tag.OldName = renameVdItem.Text;
+                }
+            }
+        }
+
+        private List<T> CreateListWithAllVDs<T>() where T : ToolStripItem, new() {
+            List<T> list = new List<T>();
+            foreach (var name in App.Instance.VDAPI.GetAllDesktopNames()) {
+                var nextItem = new T();
+                nextItem.Name = name;
+                nextItem.Size = new Size(180, 22);
+                nextItem.Text = name;
+                list.Add(nextItem);
+            }
+            return list;
+        }
+    }
 }
