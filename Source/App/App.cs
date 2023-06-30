@@ -10,7 +10,7 @@ using WindowsVirtualDesktopHelper.VirtualDesktopAPI;
 namespace WindowsVirtualDesktopHelper {
 	class App {
 
-		public IVirtualDesktopManager VDAPI = null;
+		public IVirtualDesktopAPI VDAPI = null;
 		public string CurrentVDDisplayName = null;
 		public uint CurrentVDDisplayNumber = 0;
 		public SettingsForm SettingsForm;

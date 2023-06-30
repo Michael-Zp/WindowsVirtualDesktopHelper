@@ -37,7 +37,7 @@ namespace WindowsVirtualDesktopHelper.VirtualDesktopAPI {
 			}
 		}
 
-		public static IVirtualDesktopManager LoadImplementationWithFallback(string name) {
+		public static IVirtualDesktopAPI LoadImplementationWithFallback(string name) {
 			var implementationsToTry = new List<string>();
 			implementationsToTry.Add(name);
 			if (!implementationsToTry.Contains(VirtualDesktopWin11_Insider)) implementationsToTry.Add(VirtualDesktopWin11_Insider);
@@ -59,9 +59,9 @@ namespace WindowsVirtualDesktopHelper.VirtualDesktopAPI {
 			throw new Exception("LoadImplementationWithFallback: no implementation loaded successfully, tried: " + string.Join(",", implementationsToTry));
 		}
 
-		public static IVirtualDesktopManager LoadImplementation(string name) {
+		public static IVirtualDesktopAPI LoadImplementation(string name) {
 			Util.Logging.WriteLine("LoadImplementation: Loading VDImplementation: " + name + "...");
-			IVirtualDesktopManager impl = null;
+			IVirtualDesktopAPI impl = null;
 			if (name == VirtualDesktopWin11_22H2) {
 				try {
 					impl = new VirtualDesktopAPI.Implementation.VirtualDesktopWin11_22H2();

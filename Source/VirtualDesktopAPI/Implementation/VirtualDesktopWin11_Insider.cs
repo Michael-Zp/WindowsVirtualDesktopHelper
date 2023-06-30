@@ -12,7 +12,7 @@ namespace WindowsVirtualDesktopHelper.VirtualDesktopAPI.Implementation {
 
 
 
-	internal class VirtualDesktopWin11_Insider : IVirtualDesktopManager {
+	internal class VirtualDesktopWin11_Insider : IVirtualDesktopAPI {
 
 		const string GUID_CLSID_ImmersiveShell = "C2F03A33-21F5-47FA-B4BB-156362A2F239";
 		const string GUID_CLSID_VirtualDesktopManagerInternal = "C5E0CDCA-7B6E-41B2-9FC4-D93975CC467B";
@@ -40,13 +40,9 @@ namespace WindowsVirtualDesktopHelper.VirtualDesktopAPI.Implementation {
 		}
 
 		public void SwitchToDesktop(string name) {
-			DesktopManager.GetDesktopArray(out IObjectArray desktops);
-			var count = DesktopManager.VirtualDesktopManagerInternal.GetCount(IntPtr.Zero);
-			for (int i = 0; i < count; i++) {
-				desktops.GetAt(i, typeof(IVirtualDesktop).GUID, out object objdesktop);
-				if (((IVirtualDesktop)objdesktop).GetName() == name) {
-					DesktopManager.VirtualDesktopManagerInternal.SwitchDesktop(IntPtr.Zero, (IVirtualDesktop)objdesktop);
-				}
+			var desktop = GetDesktopFromName(name);
+			if (desktop != null) {
+				DesktopManager.VirtualDesktopManagerInternal.SwitchDesktop(IntPtr.Zero, desktop);
 			}
 		}
 
@@ -71,6 +67,25 @@ namespace WindowsVirtualDesktopHelper.VirtualDesktopAPI.Implementation {
 				result.Add(((IVirtualDesktop)objdesktop).GetName());
 			}
 			return result;
+		}
+
+		private IVirtualDesktop GetDesktopFromName(string name) {
+			DesktopManager.GetDesktopArray(out IObjectArray desktops);
+			var count = DesktopManager.VirtualDesktopManagerInternal.GetCount(IntPtr.Zero);
+			for (int i = 0; i < count; i++) {
+				desktops.GetAt(i, typeof(IVirtualDesktop).GUID, out object objdesktop);
+				if (((IVirtualDesktop)objdesktop).GetName() == name) {
+					return (IVirtualDesktop)objdesktop;
+				}
+			}
+			return null;
+		}
+
+		public void MoveCurrentWindowToDesktop(IntPtr hWnd, string name) {
+			var desktop = GetDesktopFromName(name);
+			if (desktop != null) {
+				DesktopManager.VirtualDesktopManager.MoveWindowToDesktop(hWnd, desktop.GetId());
+			}
 		}
 
 		#endregion
@@ -279,6 +294,7 @@ namespace WindowsVirtualDesktopHelper.VirtualDesktopAPI.Implementation {
 			[return: MarshalAs(UnmanagedType.IUnknown)]
 			object QueryService(ref Guid service, ref Guid riid);
 		}
+
 		#endregion
 
 		#region COM wrapper

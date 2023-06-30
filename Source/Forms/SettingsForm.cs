@@ -1,10 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Runtime.InteropServices;
+using System.Text;
 using System.Windows.Forms;
+using WindowsVirtualDesktopHelper.Util;
 
 namespace WindowsVirtualDesktopHelper {
 	public partial class SettingsForm : Form {
+
+		public static IntPtr LastForgroundWindow = IntPtr.Zero;
+
+		[DllImport("user32.dll")]
+		private static extern IntPtr GetForegroundWindow();
+
+		[DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+		private static extern bool GetWindowText([In] IntPtr hwnd, StringBuilder lpString, [In] int nMaxCount);
 
 		private bool IsLoading;
 
@@ -30,6 +41,23 @@ namespace WindowsVirtualDesktopHelper {
 			//TODO: how to sync the startup setting - best would be to see if the reg key is actually there
 
 			IsLoading = false;
+
+
+			Program.hook = new KeyboardHook();
+			Program.hook.KeyPressed +=
+				new EventHandler<KeyPressedEventArgs>((_, __) => {
+					if (hotkeyedMenu.Visible) {
+						LastForgroundWindow = IntPtr.Zero;
+						hotkeyedMenu.Hide();
+					} else {
+						LastForgroundWindow = GetForegroundWindow();
+						hotkeyedMenu.Show();
+						hotkeyedMenu.Left = MousePosition.X;
+						hotkeyedMenu.Top = MousePosition.Y;
+					}
+				});
+
+			Program.hook.RegisterHotKey(Util.ModifierKeys.Control | Util.ModifierKeys.Alt, Keys.F12);
 		}
 
 		public void UpdateIconsForTheme(string theme) {
@@ -333,9 +361,27 @@ namespace WindowsVirtualDesktopHelper {
 			}
 		}
 
+		private void populateMoveWndToVdDropDownOpening(object sender, EventArgs e) {
+			if (sender is ToolStripMenuItem switchVD) {
+				switchVD.DropDownItems.Clear();
+				foreach (ToolStripMenuItem item in CreateListWithAllVDs<ToolStripMenuItem>()) {
+					item.MouseUp += MoveWndToVDItemMouseUp;
+					switchVD.DropDownItems.Add(item);
+				}
+			}
+		}
+
 		private void SwitchVDItemMouseUp(object sender, MouseEventArgs e) {
 			if (e.Button == MouseButtons.Left && sender is ToolStripMenuItem switchVdItem) {
 				App.Instance.VDAPI.SwitchToDesktop(switchVdItem.Name);
+			}
+		}
+
+		private void MoveWndToVDItemMouseUp(object sender, MouseEventArgs e) {
+			if (e.Button == MouseButtons.Left && sender is ToolStripMenuItem switchVdItem) {
+				StringBuilder outStr = new StringBuilder(128 + 1);
+				GetWindowText(LastForgroundWindow, outStr, outStr.Capacity);
+				App.Instance.VDAPI.MoveCurrentWindowToDesktop(LastForgroundWindow, switchVdItem.Name);
 			}
 		}
 

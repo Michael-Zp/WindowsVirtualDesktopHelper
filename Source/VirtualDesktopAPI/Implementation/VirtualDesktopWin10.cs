@@ -8,7 +8,8 @@ using System.Runtime.InteropServices;
 
 namespace WindowsVirtualDesktopHelper.VirtualDesktopAPI.Implementation {
 
-	internal class VirtualDesktopWin10 : IVirtualDesktopManager {
+	internal class VirtualDesktopWin10 : IVirtualDesktopAPI {
+
 		#region API
 
 		public uint Current() {
@@ -27,13 +28,9 @@ namespace WindowsVirtualDesktopHelper.VirtualDesktopAPI.Implementation {
 		}
 
 		public void SwitchToDesktop(string name) {
-			DesktopManager.GetDesktopArray(out IObjectArray desktops);
-			var count = DesktopManager.VirtualDesktopManagerInternal.GetCount();
-			for (int i = 0; i < count; i++) {
-				desktops.GetAt(i, typeof(IVirtualDesktop).GUID, out object objdesktop);
-				if (DesktopNameFromDesktop((IVirtualDesktop)objdesktop) == name) {
-					DesktopManager.VirtualDesktopManagerInternal.SwitchDesktop((IVirtualDesktop)objdesktop);
-				}
+			var desktop = GetDesktopFromName(name);
+			if (desktop != null) {
+				DesktopManager.VirtualDesktopManagerInternal.SwitchDesktop((IVirtualDesktop)desktop);
 			}
 		}
 
@@ -71,6 +68,25 @@ namespace WindowsVirtualDesktopHelper.VirtualDesktopAPI.Implementation {
 					"Name", newName);
 		}
 
+		private IVirtualDesktop GetDesktopFromName(string name) {
+			DesktopManager.GetDesktopArray(out IObjectArray desktops);
+			var count = DesktopManager.VirtualDesktopManagerInternal.GetCount();
+			for (int i = 0; i < count; i++) {
+				desktops.GetAt(i, typeof(IVirtualDesktop).GUID, out object objdesktop);
+				if (DesktopNameFromDesktop((IVirtualDesktop)objdesktop) == name) {
+					return (IVirtualDesktop)objdesktop;
+				}
+			}
+			return null;
+		}
+
+		public void MoveCurrentWindowToDesktop(IntPtr hWnd, string name) {
+			var desktop = GetDesktopFromName(name);
+			if (desktop != null) {
+				DesktopManager.VirtualDesktopManager.MoveWindowToDesktop(hWnd, desktop.GetId());
+			}
+		}
+
 		#endregion
 
 		#region Implementation
@@ -93,8 +109,7 @@ namespace WindowsVirtualDesktopHelper.VirtualDesktopAPI.Implementation {
 		internal static class Guids {
 			public static readonly Guid CLSID_ImmersiveShell = new Guid("C2F03A33-21F5-47FA-B4BB-156362A2F239");
 
-			public static readonly Guid CLSID_VirtualDesktopManagerInternal =
-				new Guid("C5E0CDCA-7B6E-41B2-9FC4-D93975CC467B");
+			public static readonly Guid CLSID_VirtualDesktopManagerInternal = new Guid("C5E0CDCA-7B6E-41B2-9FC4-D93975CC467B");
 		}
 
 		#endregion
@@ -198,6 +213,26 @@ namespace WindowsVirtualDesktopHelper.VirtualDesktopAPI.Implementation {
 			Guid GetId();
 		}
 
+		[ComImport, InterfaceType(ComInterfaceType.InterfaceIsIUnknown), Guid("a5cd92ff-29be-454c-8d04-d82879fb3f1b")]
+		[System.Security.SuppressUnmanagedCodeSecurity]
+		public interface IVirtualDesktopManager {
+			[PreserveSig]
+			int IsWindowOnCurrentVirtualDesktop(
+				[In] IntPtr TopLevelWindow,
+				[Out] out int OnCurrentDesktop);
+
+			[PreserveSig]
+			int GetWindowDesktopId(
+				[In] IntPtr TopLevelWindow,
+				[Out] out Guid CurrentDesktop);
+
+			[PreserveSig]
+			int MoveWindowToDesktop(
+				[In] IntPtr TopLevelWindow,
+				[MarshalAs(UnmanagedType.LPStruct)]
+				[In]Guid CurrentDesktop);
+		}
+
 		[ComImport]
 		[InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
 		[Guid("F31574D6-B682-4CDC-BD56-1827860ABEC6")]
@@ -237,8 +272,16 @@ namespace WindowsVirtualDesktopHelper.VirtualDesktopAPI.Implementation {
 
 		#region COM wrapper
 
+
+		[ComImport, Guid("aa509086-5ca9-4c25-8f95-589d3c07b48a")]
+		public class CVirtualDesktopManager {
+
+		}
+
 		internal static class DesktopManager {
 			internal static IVirtualDesktopManagerInternal VirtualDesktopManagerInternal;
+
+			internal static IVirtualDesktopManager VirtualDesktopManager;
 
 			static DesktopManager() {
 				var shell = (IServiceProvider10)Activator.CreateInstance(
@@ -246,6 +289,7 @@ namespace WindowsVirtualDesktopHelper.VirtualDesktopAPI.Implementation {
 				VirtualDesktopManagerInternal =
 					(IVirtualDesktopManagerInternal)shell.QueryService(Guids.CLSID_VirtualDesktopManagerInternal,
 						typeof(IVirtualDesktopManagerInternal).GUID);
+				VirtualDesktopManager = (IVirtualDesktopManager)new CVirtualDesktopManager();
 			}
 
 			internal static int GetDesktopIndex(IVirtualDesktop desktop) {
